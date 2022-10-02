@@ -99,7 +99,6 @@ class AnomalyDetector():
         self.current_feedrate_percent = 1.0
         self.current_feedrate = 1.0
         #self.sma = SMADataType()
-        self.acquire_samples()
         self.start_thread()
 
     def acquire_samples(self):
@@ -165,17 +164,18 @@ class AnomalyDetector():
 
     def _sampling(self):
         while True:
-            if time() - self.last_time > 2.0:
-                self.acquire_samples()
-                self.last_time = time()
-                self.plugin._logger.info('SIZE: {}'.format(len(self.samples.rows_of_data)))
-                if len(self.samples.rows_of_data)%10==0:
-                    self.plugin._logger.info(self.samples.rows_of_data[-10:])
-                    self.plugin.comm_manager.send_anomaly()
-                    '''
-                    with open('output_file.txt', 'w+') as f:
-                        for line in self.samples.rows_of_data:
-                            f.write("%s\n" % str(line).replace('[', '').replace(']', ''))
-                    '''
+            if self.plugin._printer.is_printing():
+                if time() - self.last_time > 2.0:
+                    self.acquire_samples()
+                    self.last_time = time()
+                    self.plugin._logger.info('SIZE: {}'.format(len(self.samples.rows_of_data)))
+                    if len(self.samples.rows_of_data)%10==0:
+                        self.plugin._logger.info(self.samples.rows_of_data[-10:])
+                        self.plugin.comm_manager.send_anomaly()
+                        '''
+                        with open('output_file.txt', 'w+') as f:
+                            for line in self.samples.rows_of_data:
+                                f.write("%s\n" % str(line).replace('[', '').replace(']', ''))
+                        '''
 
             sleep(0.2)
