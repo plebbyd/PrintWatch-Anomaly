@@ -14,7 +14,7 @@ from PIL import ImageDraw
 import re
 
 
-DEFAULT_ROUTE = 'https://printwatch-printpal.pythonanywhere.com'
+DEFAULT_ROUTE = 'https://printpaldev.pythonanywhere.com'
 
 class CommManager(octoprint.plugin.SettingsPlugin):
     def __init__(self, plugin):
@@ -71,8 +71,10 @@ class CommManager(octoprint.plugin.SettingsPlugin):
 
 
     def _send(self, endpoint='inference'):
-        data = self._create_payload() if endpoint =='heartbeat' else self._create_payload(b64encode(self.image).decode('utf8'))
-
+        try:
+            data = self._create_payload() if endpoint =='heartbeat' else self._create_payload(b64encode(self.image).decode('utf8'))
+        except:
+            data = self._create_payload('dede')
         inference_request = Request(
             '{}/{}/'.format(self.parameters['route'], endpoint),
             data=data,
@@ -220,6 +222,16 @@ class CommManager(octoprint.plugin.SettingsPlugin):
             )
         return
 
+
+    def send_anomaly(self):
+        self.parameters['anomaly_row'] = self.plugin.anomaly.samples.rows_of_data[-10:]
+        respo = self._send()
+        if respo['statusCode'] == 200:
+            self.plugin._logger.info('success adding the row of data')
+        elif respo['statusCode'] == 210:
+            self.plugin._logger.info('Anomaly inference: {}'.format(respo['data']))
+        else:
+            self.plugin._logger.info('Error AnomalyDetect system server: {}'.format(respo['response']))
 
 
     def new_ticket(self):
