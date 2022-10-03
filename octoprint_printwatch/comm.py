@@ -228,6 +228,7 @@ class CommManager(octoprint.plugin.SettingsPlugin):
         respo = self._send()
         if respo['statusCode'] == 200:
             self.plugin._logger.info('success adding the row of data')
+            self.plugin._logger.info('Response: {}'.format(respo))
         elif respo['statusCode'] == 210:
             self.plugin._logger.info('Anomaly inference: {}'.format(respo['data']))
         else:
