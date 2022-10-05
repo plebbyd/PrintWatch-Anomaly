@@ -14,7 +14,7 @@ from PIL import ImageDraw
 import re
 
 
-DEFAULT_ROUTE = 'https//10.0.0.196:8080'
+DEFAULT_ROUTE = 'http://10.0.0.196:8080'
 
 class CommManager(octoprint.plugin.SettingsPlugin):
     def __init__(self, plugin):
